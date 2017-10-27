@@ -1,0 +1,13 @@
+#!/bin/sh
+
+sleep 10
+
+mkdir -p -m 777 ${SNAP_COMMON}/php
+mkdir -p -m 777 ${SNAP_COMMON}/php/logs
+
+# Tends to be between 30-50MB
+average_php_memory_requirement=50
+total_memory=$(mawk '/MemTotal/ {printf "%d", $2/1024}' /proc/meminfo)
+export PHP_FPM_MAX_CHILDREN=$(($total_memory/$average_php_memory_requirement))
+
+php-fpm -R -F --fpm-config ${SNAP}/config/php-fpm.conf -c ${SNAP}/config
